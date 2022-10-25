@@ -1,6 +1,6 @@
 <template>
   <div class="homeComponent">
-    <ClientComponent></ClientComponent>
+    <client-component></client-component>
   </div>
 </template>
 
@@ -14,5 +14,3 @@ export default {
   }
 }
 </script>
-
-<style></style>

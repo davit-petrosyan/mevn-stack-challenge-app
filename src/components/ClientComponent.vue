@@ -88,6 +88,7 @@
 <script>
 import {snackbarEmitter} from '@/shared/snackbarEmitter';
 import ModalComponent from "./ModalComponent";
+import { HttpClientService } from "@/services/http-client.service";
 
 export default {
   name: 'ClientComponent',
@@ -109,7 +110,7 @@ export default {
     },
 
     onRemove(clientId) {
-      this.$http.delete(`client/${clientId}`)
+      HttpClientService.delete(`client/${clientId}`)
           .then(() => {
             this.clients = this.clients.filter(({_id}) => _id !== clientId);
             snackbarEmitter.success('Client removed successfully!');
@@ -131,7 +132,7 @@ export default {
     },
 
     createClient(data) {
-      this.$http.post('client', data)
+      HttpClientService.post('client', data)
           .then(response => {
             this.clients.push(response.data);
             this.toggleAddModal();
@@ -141,25 +142,26 @@ export default {
     },
 
     editClient(data, clientId) {
-      this.$http.put(`client/${clientId}`, data)
+      HttpClientService.put(`client/${clientId}`, data)
           .then(response => {
-            const clients = [...this.clients];
-            const index = clients.findIndex(({_id}) => _id === clientId);
-            clients[index] = response.data;
-            this.clients = clients;
+            const index = this.clients.findIndex(({_id}) => _id === clientId);
+            this.$set(this.clients,index,response.data);
             this.toggleEditModal();
             snackbarEmitter.success('Client edited successfully!');
           })
           .catch(snackbarEmitter.error);
     }
   },
-  created() {
-    this.$http.get('client')
-        .then(response => {
-          this.clients = response.data;
-          this.loading = false;
-        })
-        .catch(snackbarEmitter.error);
+  async created() {
+    try {
+      this.loading = true;
+      const response = await HttpClientService.get('client')
+      this.clients = response.data;
+    }catch (err){
+      snackbarEmitter.error(err)
+    }finally {
+      this.loading = false;
+    }
   }
 }
 </script>

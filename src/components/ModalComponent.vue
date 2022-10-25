@@ -80,10 +80,10 @@
         </b-col>
       </b-row>
 
-      <b-row>
+      <b-row v-if="allProviders.length">
         <b-col sm="7" offset-sm="2">
           <div class="border rounded p-3 providers-container">
-            <providerComponent
+            <provider-component
                 v-for="provider in allProviders"
                 :key="provider._id"
                 :info="provider"
@@ -104,6 +104,7 @@
 <script>
 import providerComponent from './ProviderComponent';
 import {snackbarEmitter} from '@/shared/snackbarEmitter';
+import {HttpClientService} from "@/services/http-client.service";
 
 export default {
   name: 'ModalComponent',
@@ -157,7 +158,7 @@ export default {
       if (!newProvider) {
         return;
       }
-      this.$http.post('provider', {
+      HttpClientService.post('provider', {
         name: newProvider
       })
       .then(response => {
@@ -169,7 +170,7 @@ export default {
     },
 
     onRemoveProvider(providerId) {
-      this.$http.delete(`provider/${providerId}`)
+      HttpClientService.delete(`provider/${providerId}`)
       .then(() => {
         this.allProviders = this.allProviders.filter(({_id}) => _id !== providerId);
         snackbarEmitter.success('Provider removed successfully!');
@@ -178,12 +179,10 @@ export default {
     },
 
     onEditProvider(data) {
-      this.$http.put(`provider/${data._id}`, data)
+      HttpClientService.put(`provider/${data._id}`, data)
       .then((response) => {
-        const allProviders = [...this.allProviders];
-        const index = allProviders.findIndex(({_id}) => _id === data._id);
-        allProviders[index] = response.data;
-        this.allProviders = allProviders;
+        const index = this.allProviders.findIndex(({_id}) => _id === data._id);
+        this.$set(this.allProviders,index,response.data);
         snackbarEmitter.success('Provider edited successfully!');
       })
       .catch(snackbarEmitter.error);
@@ -201,7 +200,7 @@ export default {
   created() {
     const clientId = this.$route.query.client;
     if (clientId && this.mode === 'edit') {
-      this.$http.get(`client/${clientId}`)
+      HttpClientService.get(`client/${clientId}`)
       .then(response => {
         const client = response.data;
         this.client = client;
@@ -210,7 +209,7 @@ export default {
       .catch(snackbarEmitter.error);
     }
 
-    this.$http.get('provider')
+    HttpClientService.get('provider')
     .then(response => {
       this.allProviders = response.data;
     })

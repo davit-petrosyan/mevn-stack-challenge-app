@@ -1,12 +1,12 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import HomeComponent from "../components/HomeComponent";
-import PageNotFount from "../components/PageNotFount";
+import PageNotFound from "../components/PageNotFound";
 
 Vue.use(VueRouter);
 const routes = [
     { path: '/', component: HomeComponent },
-    { path: '*', component: PageNotFount }
+    { path: '*', component: PageNotFound }
 ];
 export const router = new VueRouter({
     mode: 'history',
