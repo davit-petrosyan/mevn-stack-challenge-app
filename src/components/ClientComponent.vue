@@ -109,13 +109,15 @@ export default {
       return providers.map(({name}) => name).join(', ');
     },
 
-    onRemove(clientId) {
-      HttpClientService.delete(`client/${clientId}`)
-          .then(() => {
-            this.clients = this.clients.filter(({_id}) => _id !== clientId);
-            snackbarEmitter.success('Client removed successfully!');
-          })
-          .catch(snackbarEmitter.error);
+    async onRemove(clientId) {
+      try{
+        await HttpClientService.delete(`client/${clientId}`);
+        this.clients = this.clients.filter(({_id}) => _id !== clientId);
+        snackbarEmitter.success('Client removed successfully!');
+      }catch (err){
+        snackbarEmitter.error(err);
+      }
+
     },
 
     toggleAddModal() {
@@ -131,25 +133,27 @@ export default {
       this.showEditModal = !this.showEditModal;
     },
 
-    createClient(data) {
-      HttpClientService.post('client', data)
-          .then(response => {
-            this.clients.push(response.data);
-            this.toggleAddModal();
-            snackbarEmitter.success('Client created successfully!');
-          })
-          .catch(snackbarEmitter.error);
+    async createClient(data) {
+      try{
+        const response  =  await HttpClientService.post('client', data);
+        this.clients.push(response.data);
+        this.toggleAddModal();
+        snackbarEmitter.success('Client created successfully!');
+      } catch(err){
+        snackbarEmitter.error(err)
+      }
     },
 
-    editClient(data, clientId) {
-      HttpClientService.put(`client/${clientId}`, data)
-          .then(response => {
-            const index = this.clients.findIndex(({_id}) => _id === clientId);
-            this.$set(this.clients,index,response.data);
-            this.toggleEditModal();
-            snackbarEmitter.success('Client edited successfully!');
-          })
-          .catch(snackbarEmitter.error);
+    async editClient(data, clientId) {
+      try{
+        const response  =  await HttpClientService.put(`client/${clientId}`, data);
+        const index = this.clients.findIndex(({_id}) => _id === clientId);
+        this.$set(this.clients,index,response.data);
+        this.toggleEditModal();
+        snackbarEmitter.success('Client edited successfully!');
+      }catch (err){
+        snackbarEmitter.error(err);
+      }
     }
   },
   async created() {

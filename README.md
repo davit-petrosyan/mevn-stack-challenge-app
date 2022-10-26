@@ -3,8 +3,14 @@
 ## Project setup
 ```
 npm install
-```
 
+Remove .example extension from configuration file 
+and set configs depending on your environment.
+
+example VUE_APP_API_HOST = http://localhost:3001/api/v1/
+
+.env.example -> .env
+```
 ### Compiles and hot-reloads for development
 ```
 npm run serve

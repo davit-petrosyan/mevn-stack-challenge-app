@@ -153,39 +153,40 @@ export default {
       this.selectedProviders = selectedProviders;
     },
 
-    addNewProvider() {
+    async addNewProvider() {
       const newProvider = this.newProvider.trim();
       if (!newProvider) {
         return;
       }
-      HttpClientService.post('provider', {
-        name: newProvider
-      })
-      .then(response => {
+      try{
+        const response = await HttpClientService.post('provider', {name: newProvider});
         this.allProviders.push(response.data);
         this.newProvider = '';
         snackbarEmitter.success('Provider created successfully!');
-      })
-      .catch(snackbarEmitter.error);
+      }catch(err) {
+        snackbarEmitter.error(err);
+      }
     },
 
-    onRemoveProvider(providerId) {
-      HttpClientService.delete(`provider/${providerId}`)
-      .then(() => {
+    async onRemoveProvider(providerId) {
+      try{
+        await HttpClientService.delete(`provider/${providerId}`);
         this.allProviders = this.allProviders.filter(({_id}) => _id !== providerId);
         snackbarEmitter.success('Provider removed successfully!');
-      })
-      .catch(snackbarEmitter.error);
+      }catch(err){
+        snackbarEmitter.error(err);
+      }
     },
 
-    onEditProvider(data) {
-      HttpClientService.put(`provider/${data._id}`, data)
-      .then((response) => {
+    async onEditProvider(data) {
+      try{
+        const response = await HttpClientService.put(`provider/${data._id}`, data);
         const index = this.allProviders.findIndex(({_id}) => _id === data._id);
         this.$set(this.allProviders,index,response.data);
         snackbarEmitter.success('Provider edited successfully!');
-      })
-      .catch(snackbarEmitter.error);
+      }catch (err) {
+        snackbarEmitter.error(err);
+      }
     },
 
     onSubmit() {
@@ -197,23 +198,26 @@ export default {
       this.$emit('submit', client, this.client._id);
     }
   },
-  created() {
+  async created() {
     const clientId = this.$route.query.client;
     if (clientId && this.mode === 'edit') {
-      HttpClientService.get(`client/${clientId}`)
-      .then(response => {
+      try{
+        const response = await HttpClientService.get(`client/${clientId}`);
         const client = response.data;
         this.client = client;
         this.selectedProviders = new Set(client.providers.map(({_id}) => _id));
-      })
-      .catch(snackbarEmitter.error);
+      }catch (err){
+        snackbarEmitter.error(err);
+      }
     }
 
-    HttpClientService.get('provider')
-    .then(response => {
+    try{
+      const response = await HttpClientService.get('provider')
       this.allProviders = response.data;
-    })
-    .catch(snackbarEmitter.error);
+    }catch (err){
+      snackbarEmitter.error(err);
+    }
+
   }
 }
 </script>
